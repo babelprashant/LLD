@@ -1,28 +1,40 @@
-package TicTacToe;
+package TicTacToe.board;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import TicTacToe.move.Move;
+import TicTacToe.move.TicTacToeMove;
+import TicTacToe.user.TicTacToePlayer;
 
-public class Game {
+import java.util.Arrays;
 
-    boolean isComplete;
-    Queue<Player> players;
-    Grid grid;
+public class TicTacToeBoard extends Board{
+
+    private char[][] grid;
+    public static final char defaultChar = '_';
     int n;
+    boolean isComplete;
 
-    public void registerPlayer(String name, char key){
-        this.players.offer(new Player(name, key));
+    public TicTacToeBoard(int n){
+        grid = new char[n][n];
+        for(int i=0;i<n;i++){
+            Arrays.fill(grid[i], defaultChar);
+        }
+        this.n = n;
     }
 
-    public Game(Grid grid){
-        this.grid = grid;
-        this.players = new LinkedList<>();
-        this.isComplete = false;
-        this.n = grid.grid.length;
+    public char[][] getGrid(){
+        return this.grid;
     }
 
-    public boolean insert(int i, int j, Player p){
-        char key = p.key;
+    public char getGrid(int i, int j){
+        return this.getGrid()[i][j];
+    }
+
+    @Override
+    public boolean move(Move move){
+        TicTacToeMove ticTacToeMove = (TicTacToeMove) move;
+        char key = ticTacToeMove.getTicTacToePlayer().getKey();
+        int i = ticTacToeMove.getI();
+        int j = ticTacToeMove.getJ();
         if(key != 'X' && key != 'O') {
             System.out.println("Invalid input. Please enter either 'X' or 'O'");
             return false;
@@ -31,34 +43,47 @@ public class Game {
             System.out.println("Invalid input. Select valid coordinates");
             return false;
         }
-        if(grid.grid[i][j] != grid.defaultChar){
+        if(getGrid()[i][j] != defaultChar){
             System.out.println("Invalid input. Place already taken");
             return false;
         }
 
 
-        grid.grid[i][j] = key;
-        System.out.println(grid);
-        isComplete(p);
+        getGrid()[i][j] = key;
+        System.out.println(this);
+        isThereAWinner(ticTacToeMove.getTicTacToePlayer());
+        if(areAllSlotsFilled()){
+            System.out.println("Game Over :( ");
+        };
         return true;
     }
 
-    public void isComplete(Player p){
+    private boolean areAllSlotsFilled(){
+        boolean allSlotsFilled = allSlotsFilled();
+        isComplete = isComplete || allSlotsFilled;
+        return allSlotsFilled;
+    }
+
+    private void isThereAWinner(TicTacToePlayer p){
         isComplete = checkRowComplete() ||
                 checkColComplete() ||
                 checkDiagonalCompleteLeft() ||
-                checkDiagonalCompleteRight() ||
-                allSlotsFilled();
+                checkDiagonalCompleteRight();
         if(isComplete){
-            System.out.println(p.name+ " wins the game !!" );
+            this.setComplete(true);
+            System.out.println(p.getName()+ " wins the game!!");
         }
 
+    }
+
+    public void setComplete(boolean complete) {
+        isComplete = complete;
     }
 
     private boolean allSlotsFilled(){
         for(int i = 0; i<n;i++){
             for(int j=0;j<n;j++){
-                if(grid.grid[i][j] == grid.defaultChar)
+                if(getGrid(i, j) == defaultChar)
                     return false;
             }
         }
@@ -67,11 +92,11 @@ public class Game {
     }
 
     private boolean checkRowComplete(){
-        char[][] gridChar = this.grid.grid;
+        char[][] gridChar = getGrid();
         for(int i =0 ;i<n;i++){
             char startChar = gridChar[i][0];
-            if(startChar == grid.defaultChar){
-                return false;
+            if(startChar == defaultChar){
+                continue;
             }
             boolean complete = true;
             for(int j=1;j<n;j++){
@@ -88,11 +113,11 @@ public class Game {
     }
 
     private boolean checkColComplete(){
-        char[][] gridChar = this.grid.grid;
+        char[][] gridChar = getGrid();
         for(int i =0 ;i<n;i++){
             char startChar = gridChar[0][i];
-            if(startChar == grid.defaultChar){
-                return false;
+            if(startChar == defaultChar){
+                continue;
             }
             boolean complete = true;
             for(int j=1;j<n;j++){
@@ -111,9 +136,9 @@ public class Game {
     private boolean checkDiagonalCompleteRight(){
         int i = 1;
         boolean isComplete = true;
-        char[][] gridChar = this.grid.grid;
+        char[][] gridChar = getGrid();
         char startChar = gridChar[0][0];
-        if(startChar == grid.defaultChar){
+        if(startChar == defaultChar){
             return false;
         }
         while(i < n){
@@ -129,9 +154,9 @@ public class Game {
     private boolean checkDiagonalCompleteLeft(){
         int i = 1;
         boolean isComplete = true;
-        char[][] gridChar = this.grid.grid;
+        char[][] gridChar = getGrid();
         char startChar = gridChar[0][n-1];
-        if(startChar == grid.defaultChar){
+        if(startChar == defaultChar){
             return false;
         }
         while(i < n){
@@ -144,5 +169,19 @@ public class Game {
         return isComplete;
     }
 
+    public boolean isComplete() {
+        return isComplete;
+    }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(int i=0;i<grid.length;i++){
+            for(int j=0;j<grid[0].length;j++){
+                sb.append(grid[i][j]);
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 }

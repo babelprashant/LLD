@@ -1,38 +1,42 @@
 package TicTacToe;
 
+import TicTacToe.api.GameEngine;
+import TicTacToe.api.TicTacToeGameEngine;
+import TicTacToe.board.TicTacToeBoard;
+import TicTacToe.move.TicTacToeMove;
+import TicTacToe.user.TicTacToePlayer;
+
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        Grid grid = new Grid(3);
-        Game game = new Game(grid);
+        TicTacToeBoard ticTacToeBoard = new TicTacToeBoard(3);
+        GameEngine gameEngine = new TicTacToeGameEngine(ticTacToeBoard);
 
         System.out.println("Enter player 1 name");
         String name1 = sc.nextLine();
-        game.registerPlayer(name1, 'X');
+        gameEngine.registerPlayer(new TicTacToePlayer(name1, 'X'));
         System.out.println("Enter player 2 name");
         String name2 = sc.nextLine();
-        game.registerPlayer(name2, 'O');
-        System.out.println(grid);
-        while(!game.isComplete){
-            Player p = game.players.poll();
-            game.players.offer(p);
-            System.out.println("Insert coordinates for key " +p.key + " for "+ p.name );
+        gameEngine.registerPlayer(new TicTacToePlayer(name2, 'O'));
+        System.out.println(ticTacToeBoard);
+        while(!gameEngine.isComplete()){
+            TicTacToePlayer p = (TicTacToePlayer) gameEngine.getPlayers().poll();
+            gameEngine.getPlayers().offer(p);
+            System.out.println("Insert coordinates for key " +p.getKey() + " for "+ p.getName() );
             String[] str = sc.nextLine().split(" ");
             int i = Integer.parseInt(str[0]);
             int j = Integer.parseInt(str[1]);
-            boolean isValidMove = game.insert(i , j, p);
+            boolean isValidMove = gameEngine.move(new TicTacToeMove(i, j, p));
             while(!isValidMove){
                 str = sc.nextLine().split(" ");
                 i = Integer.parseInt(str[0]);
                 j = Integer.parseInt(str[1]);
-                isValidMove = game.insert(i , j, p);
+                isValidMove = gameEngine.move(new TicTacToeMove(i, j, p));
             }
 
         }
-
-
     }
 }
